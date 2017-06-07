@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Все галереи" %}{% endblock %}
+
+{% block content %}
+
+    <div class="row col-lg-12">
+        <h1 class="page-header">{% trans "Все галереи" %}</h1>
+    </div>
+    <form method="post" action="{% url 'gallery_list' %}">{% csrf_token %}
+<p>Введите имя. Для лучшего результата запишите через запятую имя на разных языках, используйте популярные сокращения</p>
+   <p>Имя: <input name="name" required></p>
+<button type="submit">Отправить запрос</button>
+    </form>
+    {% if galleries %}
+        {% for gallery in galleries %}
+            <div class="row col-lg-12">
+                <h2><a href="{{ gallery.id }}">{{ gallery.title }}</a></h2>
+                <p class="muted"><small>{% trans "Published" %} {{ gallery.date_created }}</small></p>
+                {% if gallery.description %}<p>{{ gallery.description|safe }}</p>{% endif %}
+            {% for photos in photos_pac %}
+                {% for photo in photos %}{% if photo.gallery_id == gallery.id %}
+                    <a href="media/{{ photo.image }}">
+                         <img src="media/{{ photo.image }}" class="thumbnail" alt="{{ photo.task }}" width="200">
+                    </a>{% endif %}
+                {% endfor %}
+            {% endfor %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="row col-lg-12">{% trans "Галерей не найдено" %}.</div>
+    {% endif %}
+
+    {% include "includes/paginator.html" %}
+    
+{% endblock %}

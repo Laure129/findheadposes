@@ -1,34 +1,32 @@
+#!/usr/bin/env python
 from django.db import models
-from django.db.models.signals import post_save
 from django.contrib.auth.models import User
-from rest_framework.authtoken.models import Token
-from django.dispatch import receiver
 
-class Piclist(models.Model):
+class Gallery(models.Model):
     owner = models.ForeignKey(
         'auth.User',
-        related_name='piclists',
+        related_name='galleries',
         on_delete=models.CASCADE)
-    name = models.CharField(max_length=200)
+    title = models.CharField(max_length=200) #для лучшего результата введите имя на нескольких языкай используйте популярные сокращения через запятую
     task = models.CharField(max_length=200, blank=True)
     date_created = models.DateField(auto_now_add=True)
     date_modified = models.DateField(auto_now=True)
+
+    class Meta:
+        ordering = ['date_modified']
+
     def __str__(self):
-        return "{}".format(self.name)
+        return self.title
 
 class Photo(models.Model):
-    owner = models.ForeignKey(
-        'auth.User',
-        related_name='photos',
-        on_delete=models.CASCADE)
-    image = models.ImageField(upload_to="%Y/%m/%d")#URLField(max_length=500)
+    image = models.ImageField(null = False, blank=False, width_field='width', height_field='height')#
+    width = models.IntegerField(default=0)
+    height = models.IntegerField(default=0)
+    pitch = models.FloatField(default=-180)
+    yaw = models.FloatField(default=-180)
     task = models.CharField(max_length=200, blank=True)
-    piclist = models.ForeignKey(Piclist, related_name='photos', on_delete=models.CASCADE)
+    gallery = models.ForeignKey(Gallery, related_name='photos', on_delete=models.CASCADE)
+    date_uploaded = models.DateField(auto_now_add=True)
 
-    def __str__(self):
-        return "{}".format(self.name)
-
-@receiver(post_save, sender=User)
-def create_auth_token(sender, instance=None, created=False, **kwargs):
-    if created:
-        Token.objects.create(user=instance)
+    class Meta:
+        ordering = ['-yaw']

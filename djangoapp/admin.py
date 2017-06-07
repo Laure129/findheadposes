@@ -1,8 +1,11 @@
 from django.contrib import admin
+from .models import User, Gallery, Photo
 
-from .models import User, Piclist, Photo
+class PhotoAdmin(admin.ModelAdmin):
+    list_display = ['image', 'task', 'gallery']
 
+    class Meta:
+        model = Photo
 
-admin.site.register(User)
-admin.site.register(Piclist)
-admin.site.register(Photo)
+admin.site.register(Gallery)
+admin.site.register(Photo, PhotoAdmin)
